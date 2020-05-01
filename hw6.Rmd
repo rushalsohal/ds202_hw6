@@ -1,0 +1,61 @@
+---
+title: "HW6 Solutions"
+author: "Rushal Sohal; github: rushalsohal"
+date: "4/20/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,include=FALSE}
+if (!require("tidyverse")) {
+install.packages("tidyverse")
+}
+if (!require("lubridate")) {
+install.packages("lubridate")
+}
+if (!require("maps")) {
+install.packages("maps")
+}
+if (!require("plotly")) {
+install.packages("plotly")
+}
+if (!require("ggthemes")) {
+install.packages("ggthemes")
+}
+library(ggthemes)
+library(plotly)
+library(tidyverse)
+library(maps)
+library(lubridate)
+```
+
+# Top dogs
+
+# 1.
+
+```{r}
+data <- readxl::read_xlsx('BestInShow.xlsx', sheet='Best in show full sheet')
+data <- data %>% select(1,3,5,6,11,32)
+data <- data[-(1:3),]
+names(data) <- c("breed","category","score","popularity","intelligence","size")
+data <- data %>% na.omit(data) %>% mutate(category=as.factor(category),size=as.factor(size),score= as.numeric(score), popularity = as.numeric(popularity),intelligence = as.numeric(intelligence)) %>%
+  mutate(intelligence = ifelse(intelligence<42,"clever","dumb")) 
+#43 was in the lower 50% (dumb) and 41 was in the higher 50% (clever) of trainability
+data
+```
+
+# 2.
+```{r}
+ggplot(data,aes(x=score,y=-popularity,color=category,size=reorder(size,desc(size)),shape=intelligence))+geom_point(alpha=.75)+labs(y="Popularity", title="Best in Show: The Ultimate Data Dog",size="size")+ geom_text(aes(label=`breed`),size=2,vjust = -.5, nudge_y = 2)+
+  geom_vline(xintercept = 2.33)+geom_hline(yintercept = -75)+ 
+  annotate("text",x=1.3,y=10,label="Inexplicably Overrated")+
+  annotate("text",x=3.5,y=10,label="Hot Dogs!")+
+  annotate("text",x=1.3,y=-160,label="The Rightly Ignored")+
+  annotate("text",x=3.3,y=-160,label="Overlooked Treasures")+ 
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(),            axis.text.y=element_blank(), axis.ticks.y=element_blank())
+```
+
+
